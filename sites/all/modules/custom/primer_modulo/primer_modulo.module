@@ -1,0 +1,27 @@
+<?php 
+ 
+function primer_modulo_menu() {
+    $items['foo/bar'] = array(
+        
+        // Titulo de nuestro Item o url personalizado
+        'title' => 'Pagina de Ejemplo: hook_menu',
+
+        // Breve descripcion
+        'description' => 'Implementacion del hook_menu()',
+
+        // Argumentos que se le pasan a la pagina basica
+        'page arguments' => array(t('Hola page is displayed by the simplest (and base) menu example. Note that the title of the page is the same as the link title. Yo can also <a href="!link">Visit a similar page with no menu link</a>. Also, note that there is a hook_menu_afeter() example that has changed the path of one of the menu items.', array('!link' => url('examples/menu_example/path_only')))),
+
+        // Funcion que se llama cuando el usuario entre al items
+        'page callback' => 'basic_instructions',
+
+        // Permisos
+        'access arguments' => array('access content'),
+    );
+    return $items;
+}
+
+function basic_instructions($content = NULL) {
+    $base_content = t('Ejemplo de un Menu');
+    return '<div>' . $base_content . '</div><br /><div>' . $content . '</div>';
+}

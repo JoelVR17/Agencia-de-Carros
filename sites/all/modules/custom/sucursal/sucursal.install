@@ -1,0 +1,203 @@
+<?php
+
+// * Implements Hook_Install --------------------------------------------------------------------------------------------------
+function sucursal_install()
+{
+
+  $t = get_t();
+
+  // ? Se llena el array de sucursal
+  $sucursal = array(
+    'type' => 'sucursal',
+    'name' => $t('Sucursal'),
+    'base' => 'node_content',
+    'description' => $t('Sucursales de los Carros Toyota'),
+    'title_label' => $t('Título de Sucursal'),
+    'custom' => TRUE,
+    'locked' => FALSE,
+    'disabled' => FALSE,
+  );
+
+  // ? Se llenan campos...
+  $content_type = node_type_set_defaults($sucursal);
+
+  node_add_body_field($content_type, $t('Descripcion de la Sucursal'));
+
+  node_type_save($content_type);
+
+  $body_instance = field_info_instance('node', 'body', 'sucursal');
+
+  $body_instance['display']['example_node_list'] = array(
+    'label' => 'hidden',
+    'type' => 'text_summary_or_trimmed',
+  );
+
+  field_update_instance($body_instance);
+
+  foreach (_sucursal_installed_fields() as $field) {
+    field_create_field($field);
+  }
+
+  foreach (_sucursal_installed_instances() as $instance) {
+    $instance['entity_type'] = 'node';
+    $instance['bundle'] = $sucursal['type'];
+    field_create_instance($instance);
+  }
+}
+
+// ? Se instalan las filas o campos de la sucursal
+function _sucursal_installed_fields()
+{
+
+  $t = get_t();
+
+  return array(
+
+    // ! Provincia
+    'sucursal_provincia' => array(
+      'field_name'  => 'sucursal_provincia',
+      'cardinality' => 1,
+      'type'        => 'text',
+    ),
+
+    // ! Canton
+    'sucursal_canton' => array(
+      'field_name'  => 'sucursal_canton',
+      'cardinality' => 1,
+      'type'        => 'text',
+    ),
+
+    // ! Distrito
+    'sucursal_distrito' => array(
+      'field_name'  => 'sucursal_distrito',
+      'cardinality' => 1,
+      'type'        => 'text',
+    ),
+
+    // ! Direccion
+    'sucursal_direccion' => array(
+      'field_name'  => 'sucursal_direccion',
+      'cardinality' => 1,
+      'type'        => 'text',
+    ),
+
+    // ! Cantidad Empleados
+    'sucursal_cantEmpleados' => array(
+      'field_name'  => 'sucursal_cantEmpleados',
+      'cardinality' => 1,
+      'type'        => 'decimal',
+    ),
+  );
+}
+
+// ? Se instalan las instancias 
+function _sucursal_installed_instances()
+{
+  $t = get_t();
+  return array(
+
+    // ! Provincia
+    'sucursal_provincia' => array(
+      'field_name' => 'sucursal_provincia',
+      'label'       => $t('Provincia'),
+      'widget'      => array(
+        'type'    => 'text_textfield',
+      ),
+      'display' => array(
+        'example_node_list' => array(
+          'label' => 'hidden',
+          'type' => 'sucursal_provincias',
+        ),
+      ),
+    ),
+
+    // ! Canton
+    'sucursal_canton' => array(
+      'field_name' => 'sucursal_canton',
+      'label'       => $t('Canton'),
+      'widget'      => array(
+        'type'    => 'text_textfield',
+      ),
+      'display' => array(
+        'example_node_list' => array(
+          'label' => 'hidden',
+          'type' => 'sucursal_cantons',
+        ),
+      ),
+    ),
+
+    // ! Distrito
+    'sucursal_distrito' => array(
+      'field_name' => 'sucursal_distrito',
+      'label'       => $t('Distrito'),
+      'widget'      => array(
+        'type'    => 'text_textfield',
+      ),
+      'display' => array(
+        'example_node_list' => array(
+          'label' => 'hidden',
+          'type' => 'sucursal_distritos',
+        ),
+      ),
+    ),
+
+    // ! Direccion
+    'sucursal_direccion' => array(
+      'field_name' => 'sucursal_direccion',
+      'label'       => $t('Direccion'),
+      'widget'      => array(
+        'type'    => 'text_textfield',
+      ),
+      'display' => array(
+        'example_node_list' => array(
+          'label' => 'hidden',
+          'type' => 'sucursal_direccions',
+        ),
+      ),
+    ),
+
+    // ! Cantidad Empleados
+    'sucursal_cantEmpleados' => array(
+      'field_name' => 'sucursal_cantEmpleados',
+      'label'       => $t('Cantidad Empleados'),
+      'widget'      => array(
+        'type'    => 'text_textfield',
+      ),
+      'display' => array(
+        'example_node_list' => array(
+          'label' => 'hidden',
+          'type' => 'sucursal_cantEmpleadoss',
+        ),
+      ),
+    ),
+
+  );
+}
+
+// * Implements Hook_Uninstall --------------------------------------------------------------------------------------------------
+function sucursal_uninstall()
+{
+
+  // ? Se hace el query para borrar todo lo referente al modulo de la BD
+  $sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+  $result = db_query($sql, array(':type' => 'sucursal'));
+  $nids = array();
+  foreach ($result as $row) {
+    $nids[] = $row->nid;
+  }
+
+  node_delete_multiple($nids);
+
+  foreach (array_keys(_sucursal_installed_fields()) as $field) {
+    field_delete_field($field);
+  }
+
+  $instances = field_info_instances('node', 'sucursal');
+  foreach ($instances as $instance_name => $instance) {
+    field_delete_instance($instance);
+  }
+
+  node_type_delete('sucursal');
+
+  field_purge_batch(1000);
+}

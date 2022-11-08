@@ -1,0 +1,12 @@
+name = Content Access Rules Integrations
+description = Integrates Rules with Content access. Allows to act on access events, conditions, and actions.
+package = Access control
+core = 7.x
+dependencies[] = content_access
+dependencies[] = rules
+
+; Information added by Drupal.org packaging script on 2022-06-01
+version = "7.x-1.2-beta4"
+core = "7.x"
+project = "content_access"
+datestamp = "1654071308"

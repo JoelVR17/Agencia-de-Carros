@@ -1,0 +1,121 @@
+<?php
+
+//  Implements hook_permission
+function form_example_permission() {
+    return array(
+        'submit form_example' => array(
+            'title' => t('Submit form_example'),
+            'description' => t('Submit the form_example form'),
+        ),
+        'access form_example submissions' => array(
+            'title' => t('Submit form_example submissions'),
+            'description' => t('Access the form_example submissions'),
+        ),
+    );
+}
+
+//  Implements hook_menu
+function form_example_menu() {
+    $items = array();
+    $items['form-example'] = array(
+        'title' => 'My example form',
+        'type' => MENU_NORMAL_ITEM,
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('form_example_form'),
+        'access arguments' => array('submit form_example'),
+
+    );
+    $items['form-submissions'] = array(
+        'title' => 'My Form Submissions',
+        'type' => MENU_NORMAL_ITEM,
+        'page callback' => 'form_example_submissions',
+        'access arguments' => array('access form_example submissions'),
+
+    );
+
+    return $items;
+}
+
+//  Example Form
+function form_example_form($form,&$form_state) {
+    $form['mynumber'] = array(
+        '#type' => 'textfield',
+        '#title' => t('My number'),
+        '#size' => 10,
+        '#maxlength' => 10,
+        '#required' => TRUE,
+        '#description' => t('Please enter a valid number'),
+    );
+
+    $form['mytextfield'] = array(
+        '#type' => 'textfield',
+        '#title' => t('My Textfield'),
+        '#size' => 50,
+        '#maxlength' => 128,
+        '#required' => TRUE,
+    );
+
+    $form['mytext'] = array(
+        '#type' => 'textarea',
+        '#title' => t('My Textarea'),
+        '#description' => t('Enter some text'),
+        '#required' => TRUE,
+        '#default_value' => '',
+    );
+
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Add the item'),
+    );
+
+    return $form;
+}
+
+//  Validation handler
+function form_example_form_validate($form, &$form_state) {
+    // print('<prev>' . print_r($form_state['values'],1). '</prev>');die();
+    if (!is_numeric($form_state['values']['mynumber'])) {
+        form_set_error('mynumber', t('You must enter a valid number'));
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+//  Submit handler
+function form_example_form_submit($form, &$form_state) {
+    $fe_id = db_insert('form_example') -> fields(array(
+        'mynumber' => $form_state['values']['mynumber'],
+        'mytextfield' => $form_state['values']['mytextfield'],
+        'mytext' => $form_state['values']['mytext'],
+    )) -> execute();
+    drupal_set_message(t('Your form entry has been added'));
+}
+
+//  View the form submissions
+function form_example_submissions() {
+    //$results = db_query("SELECT * FROM {form_example}");
+
+    $query = db_select('form_example', 'fe');
+    $query 
+    -> fields('fe', array('fe_id', 'mynumber', 'mytextfield', 'mytext'))
+    -> range(0, 50)
+    -> orderBy('fe.fe_id');
+
+    $results = $query->execute();
+
+    $header = array(t('ID'), t('My Number'), t('My TextField'), t('My Text'));
+
+    $rows = array();
+
+    foreach ($results AS $result) {
+        $rows[] = array(
+            check_plain($result -> fe_id),
+            check_plain($result -> mynumber),
+            check_plain($result -> mytextfield),
+            check_plain($result -> mytext),
+        );
+    }
+
+    return theme('table', array('header' => $header, 'rows' => $rows));
+}

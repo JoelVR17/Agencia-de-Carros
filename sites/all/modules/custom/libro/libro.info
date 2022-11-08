@@ -1,0 +1,4 @@
+name = libro
+description = ...
+core = 7.x
+type = module

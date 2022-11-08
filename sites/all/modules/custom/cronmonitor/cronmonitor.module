@@ -1,0 +1,65 @@
+<?php
+
+//  Implements hook_permission
+
+use JetBrains\PhpStorm\Language;
+
+function cronmonitor_permission() {
+    return array(
+        'administer cronmonitor' => array(
+            'title' => t('Administer Cron Monitor'),
+            'description' => t('Perfom administration tasks for Cron Monitor'),
+        ),
+    );
+}
+   
+//  Implements hook_menu
+function cronmonitor_menu() {
+    $items['admin/config/cronmonitor'] = array(
+        'title' => 'Cron Monitor Settings',
+        'type' => MENU_NORMAL_ITEM,
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('cronmonitor_admin_form'),
+        'access arguments' => array('administer cronmonitor'),
+    );
+
+    return $items;
+}
+
+//  Create Form Function
+function cronmonitor_admin_form($form, &$form_state) {
+    
+    $form['cronmonitor_enable'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Enable Cron Monitor'),
+        '#default_value' => variable_get('cronmonitor_enable', 0),
+    );
+
+    $form['cronmonitor_email_text'] = array(
+        '#type' => 'textarea',
+        '#title' => t('Text to send with Cron Monitor Emails'),
+        '#description' => t('Enter some text to send with the Cron Monitor email messages'),
+        '#default_value' => variable_get('cronmonitor_email_text', ''),
+    );
+
+    return system_settings_form($form);
+}
+
+//  Implemets hook_cron
+function cronmonitor_cron() {
+    if (variable_get('cronmonitor_enable', 0)) {
+        //  send the cronmonitor email
+        drupal_mail('cronmonitor','cronmonitor_email','vermudo.com@gmail.com', language_default());
+    }
+}
+
+//  Implements hook_email
+function cronmonitor_email($key, &$message, $params) {
+    switch ($key) {
+        case 'cronmonitor_email':
+            $message['subject'] = t('This is a cron monitor report');
+            $message['body'][] =  t('This is a report from cron monitor on @site-name');
+            $message['body'][] = t(variable_get('cronmonitor_email_text', ''));
+            break;
+    }
+}

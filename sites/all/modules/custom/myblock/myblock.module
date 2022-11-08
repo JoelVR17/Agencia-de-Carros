@@ -1,0 +1,54 @@
+<?php
+
+//  Implements hook_permission
+function myblock_permission() {
+    return array(
+        'access mypage' => array(
+            'title' => t('Access My Page'),
+            'description' => t('Acces My Page on my site.'),
+        ),
+    );
+}
+
+//  Implements hook_menu
+function myblock_menu() {
+    $items['mypage'] = array(
+        'title' => 'My Page',
+        'type' => MENU_NORMAL_ITEM,
+        'page callback' => 'myblock_mypage',
+        'access arguments' => array('access mypage'),
+
+    );
+
+    return $items;
+}
+
+//  My callback function
+function myblock_mypage() {
+    return "<strong>This is a test</strong>";
+}
+
+//  Implements hook_info 
+function myblock_block_info() {
+
+    $blocks['myblock'] = array(
+        'info' => t('My Custom Block'),
+    );
+
+    return $blocks;
+}
+
+//  Implements hook_view 
+function myblock_block_view($delta = '') {
+
+    $block = array();
+
+    switch ($delta) {
+        case 'myblock':
+            $block['subject'] = t('This is my custom block');
+            $block['content'] = "<strong>Hola</strong><p>Mundo</p>";
+            break;
+    }
+
+    return $block;
+}

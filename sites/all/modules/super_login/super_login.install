@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Requirements and update functions for the super login module.
+ */
+
+/**
+ * Re-save super login configuration with schema defined.
+ */
+function super_login_update_8101() {
+  $config_factory = \Drupal::configFactory();
+  $config = $config_factory->getEditable('super_login.settings');
+  $config->save(TRUE);
+}

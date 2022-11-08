@@ -1,0 +1,146 @@
+<?php 
+
+// * Implements Hook_Install --------------------------------------------------------------------------------------------------
+function node_example_install() {
+
+  $t = get_t();
+
+  $node_example = array(
+    'type' => 'node_example',
+    'name' => $t('Ejemplo de nodo'),
+    'base' => 'node_content',
+    'description' => $t('Este es un ejemplo de nodo usando Field'),
+    'title_label' => $t('Título del ejemplo'),
+    'custom' => TRUE,
+    'locked' => FALSE,
+    'disabled' => FALSE,
+  );
+
+  $content_type = node_type_set_defaults($node_example);
+
+  //Añadimos el campo body y le añadimos una etiqueta
+  node_add_body_field($content_type, $t('Example Description'));
+
+  // Guardamos el tipo de contenido
+  node_type_save($content_type);
+
+  $body_instance = field_info_instance('node', 'body', 'node_example');
+
+  $body_instance['display']['example_node_list'] = array(
+    'label' => 'hidden',
+    'type' => 'text_summary_or_trimmed',
+  );
+
+  field_update_instance($body_instance);
+
+  foreach (_node_example_installed_fields() as $field) {
+    field_create_field($field);
+  }
+
+  foreach (_node_example_installed_instances() as $instance) {
+    $instance['entity_type'] = 'node';
+    $instance['bundle'] = $node_example['type'];
+    field_create_instance($instance);
+  }
+}
+
+function _node_example_installed_fields() {
+//cogemos el nombre de la función de traducción
+  $t = get_t();
+//devolvemos el array de los campos
+  return array(
+    'node_example_color' => array(
+      'field_name' => 'node_example_color',
+      'cardinality' => 3,
+      'type'        => 'text',
+      'settings'    => array(
+        'max_length' => 60,
+      ),
+    ),
+    'node_example_quantity' => array(
+      'field_name'  => 'node_example_quantity',
+      'cardinality' => 1,
+      'type'        => 'text',
+    ),
+    'node_example_image' => array(
+      'field_name' => 'node_example_image',
+      'type'       => 'image',
+      'cardinality' => 1,
+    ),
+  );
+}
+
+function _node_example_installed_instances() {
+  $t = get_t();
+  return array(
+    'node_example_color' => array(
+      'field_name' => 'node_example_color',
+      'label'       => $t('The colors available for this object.'),
+      'widget'      => array(
+        'type'    => 'text_textfield',
+      ),
+      'display' => array(
+        'example_node_list' => array(
+          'label' => 'hidden',
+          'type' => 'node_example_colors',
+        ),
+      ),
+    ),
+    'node_example_quantity' => array(
+      'field_name'  => 'node_example_quantity',
+      'label' => $t('Quantity required'),
+      'type'        => 'text',
+      'widget'      => array(
+        'type'    => 'text_textfield',
+      ),
+      'display' => array(
+        'example_node_list' => array(
+          'label' => 'hidden',
+          'type' => 'hidden',
+        ),
+      ),
+    ),
+    'node_example_image' => array(
+      'field_name'  => 'node_example_image',
+      'label'       => $t('Upload an image:'),
+      'required'    => FALSE,
+      'widget' => array(
+        'type'    => 'image_image',
+        'weight'  => 2.10,
+      ),
+      'display' => array(
+        'example_node_list' => array(
+          'label' => 'hidden',
+          'type' => 'image_link_content__thumbnail',
+        ),
+      ),
+    ),
+    
+  );
+}
+
+// * Implements Hook_Uninstall --------------------------------------------------------------------------------------------------
+function node_example_uninstall() {
+
+    $sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+    $result = db_query($sql, array(':type' => 'node_example'));
+    $nids = array();
+    foreach ($result as $row) {
+      $nids[] = $row -> nid;
+    }
+  
+    node_delete_multiple($nids);
+  
+    foreach (array_keys(_node_example_installed_fields()) as $field) {
+      field_delete_field($field);
+    }
+  
+    $instances = field_info_instances('node', 'node_example');
+    foreach ($instances as $instance_name => $instance) {
+      field_delete_instance($instance);
+    }
+
+    node_type_delete('node_example');
+  
+    field_purge_batch(1000);
+  }

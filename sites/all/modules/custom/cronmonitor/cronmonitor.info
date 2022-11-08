@@ -1,0 +1,4 @@
+name = Cron Monitor
+description = Modulo de Cron Monitor
+core = 7.x
+configure = admin/config/cronmonitor

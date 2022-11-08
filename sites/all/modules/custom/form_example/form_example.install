@@ -1,0 +1,47 @@
+<?php
+
+//  Implements hook_schema
+function form_example_schema() {
+    $schema = array();
+
+    $schema['form_example'] = array(
+        'description' => 'An example table',
+        'fields' => array(
+
+            'fe_id' => array(
+                'description' => 'The primary indentifier for a my table',
+            'type' => 'serial',
+            'unsigned' => TRUE,
+            'not null' => TRUE,
+            ),
+
+            'mynumber' => array(
+                'description' => 'A field for storing an integer number',
+            'type' => 'int',
+            'unsigned' => TRUE,
+            'not null' => TRUE,
+            'default' => 0,
+            ),
+
+            'mytextfield' => array(
+                'description' => 'A field for storing short strings of text',
+            'type' => 'varchar',
+            'length' => 50,
+            'not null' => TRUE,
+            'default' => '',
+            ),
+
+            'mytext' => array(
+                'description' => 'A field for storing longer text',
+            'type' => 'text',
+            'not null' => TRUE,
+            ),
+        ),
+        'indexes' => array(
+            'form_example_mynumber' => array('mynumber'),
+        ),
+        'primary key' => array('fe_id'),
+    );
+
+    return $schema;
+}

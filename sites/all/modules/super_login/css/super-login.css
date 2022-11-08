@@ -1,0 +1,154 @@
+#capslockdiv{
+  height:2em;
+}
+
+#capslockdiv p{
+  height:2em;
+  display: none;
+  color: #c61414;
+  margin-left:2em;
+  margin-top:-.5em;
+}
+
+/* Try to hide Page Titles on login pages */
+.path-user #page-title,
+.path-user h1#page-title,
+.path-user h1.page-title,
+.path-user h1.page-header {
+  visibility: hidden;
+}
+
+p.login-title {
+  color: #555;
+  text-align: center;
+  background: #f3f3f3;
+  border-bottom: 1px solid #cfcfcf;
+  border-radius: 3px 3px 0 0;
+  background-image: -webkit-linear-gradient(top, whiteffd, #eef2f5);
+  background-image: -moz-linear-gradient(top, whiteffd, #eef2f5);
+  background-image: -o-linear-gradient(top, whiteffd, #eef2f5);
+  background-image: linear-gradient(to bottom, whiteffd, #eef2f5);
+  -webkit-box-shadow: 0 1px whitesmoke;
+  box-shadow: 0 1px whitesmoke;
+}
+
+#user-login-form {
+  margin-bottom: 2em;
+}
+
+#user-login-form .description {
+  font-size: 11px;
+  color: #777;
+  padding-left: 10px;
+}
+
+#edit-name,
+#edit-pass {
+  border: 1px solid #aaa;
+}
+
+/* Login Forms */
+#user-login-form,
+#user-pass {
+  max-width: 600px;
+  background-color: #fff;
+  border: 2px solid rgba(0, 0, 0, 0.25);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+
+}
+
+#user-login-form .form-item,
+#user-pass .form-item {
+  padding-left: 1em;
+}
+
+#user-pass .form-actions,
+#user-login-form .form-actions {
+  margin: 1em 0 1em 1em;
+  padding: 0;
+}
+
+#user-login-form .actions-suffix {
+  float: right;
+  position: relative;
+  bottom: 30px;
+  right: 10px;
+}
+
+#edit-actions {
+  margin-top: 1em;
+}
+
+#user-pass label,
+#user-login-form label {
+  display: block;
+  font-weight: normal;
+}
+
+.form-item {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.form-item-pass,
+p.forgot-password {
+  display: inline-block;
+}
+
+p.super-login-password {
+  margin: 0 0 0 1em;
+}
+
+p.forgot-password {
+  margin-left: 1rem;
+  margin-bottom:0;
+  position: relative;
+  top: -5px;
+}
+
+a.super-login-register,
+p.forgot-password a {
+  border: none;
+}
+
+#user-pass .form-item.form-item-name,
+#user-login-form .form-item.form-item-name {
+  margin: 1em 0;
+}
+
+#user-login-form .form-item.form-item-pass {
+  margin: 0;
+}
+
+#user-login-form .messages,
+#user-pass .messages {
+  margin: 0 0 .1em .75em;
+}
+
+form.user-pass p:not(.login-title){
+  margin-left:1em;
+}
+
+.back-to-login {
+  float: right;
+  margin: 0 1em .125em 0;
+}
+
+input.form-text {
+  border: 2px solid #dadada;
+  max-width: 375px;
+  overflow: hidden;
+}
+
+input.form-text:focus {
+  outline: none;
+  border-color: #0088cc;
+  box-shadow: 0 0 8px #9ecaed;
+}
+
+input.form-control {
+  display: inline;
+  width: auto;
+}

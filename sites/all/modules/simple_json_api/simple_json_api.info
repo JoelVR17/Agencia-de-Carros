@@ -1,0 +1,12 @@
+; $Id: simple_json_api,v 1.3 11/22/2018 earlyburg
+name = Simple JSON API
+description = A JSON API for Drupal 7.
+package = Simple JSON API
+core = 7.x
+
+
+; Information added by Drupal.org packaging script on 2018-11-22
+version = "7.x-1.3"
+core = "7.x"
+project = "simple_json_api"
+datestamp = "1542907107"

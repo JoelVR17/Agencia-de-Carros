@@ -1,0 +1,40 @@
+<?php
+
+//  *   Hook_Schema
+function cruduno_schema () {
+    $schema['cruduno'] = array (
+        'description' => 'Base de ejemplo Crud',
+        'fields' => array (
+
+            'id' => array (
+                'description' => 'id',
+                'type' => 'serial',
+                'not null' => TRUE,
+            ),
+
+            'nombre' => array (
+                'description' => 'Nombre de la Persona',
+                'type' => 'varchar',
+                'length' => '50',
+                'not null' => TRUE,
+            ),
+
+            'ap' => array (
+                'description' => 'Apellido de la Persona',
+                'type' => 'varchar',
+                'length' => '50',
+                'not null' => TRUE,
+            ),
+
+            'tel' => array (
+                'description' => 'Telefono de la Persona',
+                'type' => 'varchar',
+                'length' => '20',
+                'not null' => TRUE,
+            ),
+        ),
+        'primary key' => array('id'),
+    );
+
+    return $schema;
+}

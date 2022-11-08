@@ -1,0 +1,102 @@
+<?php
+/**
+ * @file
+ * Contains database schema and install functions for simple_json_api.
+ */
+
+/**
+* Impliments hook_update_N()
+*/
+function simple_json_api_update_7002() {
+
+	$roles = array('Access Simple JSON API','Full Access Simple JSON API');
+
+	foreach($roles as $name) {
+		$existing_role = user_role_load_by_name($name);
+		if (empty($existing_role)) {
+			$role = new stdClass();
+			$role->name = $name;
+			user_role_save($role);
+		}
+	}
+
+}
+
+
+/**
+* Impliments hook_install().
+*/
+function simple_json_api_install() {
+
+	$roles = array('Access Simple JSON API','Full Access Simple JSON API');
+
+	foreach($roles as $name) {
+		$existing_role = user_role_load_by_name($name);
+		if (empty($existing_role)) {
+			$role = new stdClass();
+			$role->name = $name;
+			user_role_save($role);
+		}
+	}
+} 
+
+
+/**
+* Impliments hook_uninstall().
+*/
+function simple_json_api_uninstall() {
+
+	$roles = array('Access Simple JSON API','Full Access Simple JSON API');
+
+	foreach($roles as $name) {
+		$existing_role = user_role_load_by_name($name);
+		if (!empty($existing_role)) {
+			user_role_delete($name);
+		}
+	}
+}
+
+/**
+ * Impliments hook_schema().
+ */
+function simple_json_api_schema() {
+  $schema['simple_json_api'] = array(
+    'description' => 'Login table for Simple JSON API',
+    'fields' => array(
+      'usersname' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => FALSE,
+        'description' => 'User Name',
+      ),
+      'usersid' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => FALSE,
+        'description' => 'User ID',
+      ),
+      'timestamp' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => FALSE,
+        'description' => 'Login Timestamp',
+      ),
+      'ipaddress' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => FALSE,
+        'description' => 'Origin IP',
+      ),
+      'authorized' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => FALSE,
+        'description' => 'Authorization enabled?',
+      ),
+    ),
+    'unique keys' => array(
+      'usersname' => array('usersname'),
+    ),
+  );
+  return $schema;
+}

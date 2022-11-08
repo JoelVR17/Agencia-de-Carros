@@ -1,0 +1,42 @@
+<?php
+
+// //  *   Hook_Schema
+// function empleado_schema () {
+//     $schema['empleado'] = array (
+//         'description' => 'Crud Empleado Custom',
+//         'fields' => array (
+
+//             'id' => array (
+//                 'description' => 'id',
+//                 'type' => 'serial',
+//                 'not null' => TRUE,
+//             ),
+
+//             'nombre' => array (
+//                 'description' => 'Nombre del Empleado',
+//                 'type' => 'varchar',
+//                 'length' => '50',
+//                 'not null' => TRUE,
+//             ),
+
+//             'ap' => array (
+//                 'description' => 'Apellido del Empleado',
+//                 'type' => 'varchar',
+//                 'length' => '50',
+//                 'not null' => TRUE,
+//             ),
+
+//             // ! ----------------OJO-------------------------------------------------
+//             'edad' => array (
+//                 'description' => 'Edad del Empleado',
+//                 'type' => 'int',
+//                 'size' => 'medium',
+//                 'not null' => TRUE,
+//             ),
+//             // ! ----------------OJO-------------------------------------------------
+//         ),
+//         'primary key' => array('id'),
+//     );
+
+//     return $schema;
+// }

@@ -1,0 +1,12 @@
+; ! GLOBLAS
+name = Sucursal
+description = Sucursales para los Carros Toyota
+core = 7.x
+package = Toyota
+
+; ! DEPENDENCES
+dependencies[] = views
+dependencies[] = views_ui
+
+; ! IMPORTS FILES
+files[] = includes/sucursal_crud.inc

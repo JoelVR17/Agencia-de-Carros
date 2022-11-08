@@ -1,0 +1,6 @@
+; name =  Empleado
+; description = CRUD Custom de Empleados Toyota
+; package = Toyota
+; core = 7.x
+; dependencies[] = sucursal
+; dependencies[] = image

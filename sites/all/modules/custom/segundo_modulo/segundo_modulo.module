@@ -1,0 +1,68 @@
+<?php
+
+//  MODULO DE MENU
+function segundo_modulo_menu() {
+    $items = array();
+
+    $items['foo/form'] = array(
+        'title' => t('Formulario con API'),
+
+        'descripion' => t('Formulario de Prueba'),
+
+        'page callback' => 'drupal_get_form',
+
+        'page arguments' => array('form_drupal'),
+
+        'access arguments' => array('administer form_drupal settings'),
+
+        'type' => MENU_NORMAL_ITEM,
+
+    );
+
+    return $items;
+}
+
+//  MODULO DEL FORMULARIO
+function form_drupal() {
+    $form = array();
+
+    // formulario
+    $form['opcion1'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Formulario con API'),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+    );
+
+    // nombre
+    $form['opcion1']['name'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Nombre'),
+        '#default_value' => !empty($form_state['values']['name']) ? $form_state['values']['name'] : '',
+        '#required' => TRUE,
+    );
+
+    // telefono
+    $form['opcion1']['phone'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Telefono'),
+        '#default_value' => !empty($form_state['values']['phone']) ? $form_state['values']['phone'] : '',
+        '#required' => TRUE,
+    );
+
+    // consulta
+    $form['opcion1']['question'] = array(
+        '#type' => 'textarea',
+        '#title' => t('Consulta'),
+        '#default_value' => !empty($form_state['values']['question']) ? $form_state['values']['question'] : '',
+        '#required' => TRUE,
+    );
+
+    // guardar
+    $form['opcion1']['submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Guardar'),
+    );
+
+    return $form;
+}

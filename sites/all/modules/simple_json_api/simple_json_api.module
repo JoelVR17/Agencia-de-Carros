@@ -1,0 +1,593 @@
+<?php
+
+/**
+ * @file
+ * Simple JSON API primary module file.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function simple_json_api_menu() {
+
+	$items = array();
+
+	$items['api/login/%'] = array(
+		'page callback' => 'simple_json_api_user_auth',
+		'page arguments' => array(2),
+		'access arguments' => array('access content'),
+	);
+
+	$items['api/%/user/list'] = array(
+		'page callback' => 'simple_json_api_userlist_view',
+		'page arguments' => array(1),
+		'access arguments' => array('access content'),
+	);
+
+	$items['api/%/user/%'] = array(
+		'page callback' => 'simple_json_api_user_view',
+		'page arguments' => array(1, 3),
+		'access arguments' => array('access content'),
+	);
+
+	$items['api/%/node/list'] = array(
+		'page callback' => 'simple_json_api_nodelist_view',
+		'page arguments' => array(1),
+		'access arguments' => array('access content'),
+	);
+
+	$items['api/%/node/%'] = array(
+		'page callback' => 'simple_json_api_node_view',
+		'page arguments' => array(1, 3),
+		'access arguments' => array('access content'),
+	);
+
+	$items['api/%/node/%/%simple_json_api_node_crud'] = array(
+		'page callback' => 'simple_json_api_node_view',
+		'page arguments' => array(1, 3, 4),
+		'access arguments' => array('access content'),
+	);
+
+	$items['api/%'] = array(
+		'page callback' => 'simple_json_api_view',
+		'page arguments' => array(2),
+		'access arguments' => array('access content'),
+	);
+
+	$items['admin/reports/simple_json_api'] = array(
+		'title' => 'Simple JSON API',
+		'description' => 'Simple JSON API active sessions.',
+		'page callback' => 'simple_json_api_admin',
+		'access arguments' => array('access administration pages'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+		'type' => MENU_NORMAL_ITEM,
+	);
+
+	return $items;
+}
+
+
+/**
+ * Implements hook_theme_registry_alter().
+ *
+ * make the theme registry aware of our module template(s)
+ */
+function simple_json_api_theme_registry_alter(&$theme_registry) {
+	// Defined path to the current module.
+	$module_path = drupal_get_path('module', 'simple_json_api');
+	// Find all .tpl.php files in this module's folder recursively.
+	$template_file_objects = drupal_find_theme_templates($theme_registry, '.tpl.php', $module_path);
+	// Iterate through all found template file objects.
+	foreach ($template_file_objects as $key => $template_file_object) {
+		// If the template has not already been overridden by a theme.
+		if (!isset($theme_registry[$key]['theme path']) || !preg_match('#/themes/#', $theme_registry[$key]['theme path'])) {
+			// Alter the theme path and template elements.
+			$theme_registry[$key]['theme path'] = $module_path;
+			$theme_registry[$key] = array_merge($theme_registry[$key], $template_file_object);
+			$theme_registry[$key]['type'] = 'module';
+		}
+	}
+}
+
+
+/**
+ * Implements hook_admin().
+ */
+function simple_json_api_admin() {
+	// display a warning if our authfile.csv has the wrong permissions
+	$path = drupal_get_path('module', 'simple_json_api') . '/auth/authfile.csv';
+	if (!is_writable($path)) {
+		drupal_set_message(t('Please enable read/write access for /sites/all/modules/simple_json_api/auth/authfile.csv'), 'warning');
+	}
+
+	$users_array = array();
+	// get a list of usernames from the database that are currently authorized
+	$outputstring = '<b>These API users are currently authenticated:</b><br><br>';
+
+	$usersquery = db_query('SELECT usersname, timestamp, ipaddress FROM {simple_json_api} WHERE authorized = :authorized', array(':authorized' => 'yes'));
+
+	while ($row = $usersquery->fetchAssoc()) {
+		$users_array[] = $row;
+	}
+	if (!empty($users_array)) {
+		foreach ($users_array as $user) {
+			$convertedtime = date('d/m/Y h:i:s', $user['timestamp']);
+			$outputstring .= '<i>' . $user['usersname'] . '</i> logged in from ' . $user['ipaddress'] . ' at ' . $convertedtime . '<br><br>';
+		}
+	} else {
+		$outputstring .= 'No API users are currently authenticated';
+	}
+	return $outputstring;
+}
+
+
+/**
+ * User Login
+ */
+function simple_json_api_user_auth($uname) {
+
+	// Look up the user in the users table
+	$d_usercheck = db_query('SELECT name, uid, status FROM {users} WHERE name = :name', array(':name' => $uname))->fetchAssoc();
+
+	if (!empty($d_usercheck['uid']) && $d_usercheck['status'] == '1') {
+
+		$loaded_username = $d_usercheck['name'];
+		$loaded_uid = $d_usercheck['uid'];
+
+		// get the IP that the request originated from if possible
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+			$ip = $_SERVER['HTTP_CLIENT_IP'];
+		} else if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+			$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+		} else {
+			$ip = $_SERVER['REMOTE_ADDR'];
+		}
+
+		$login_message = json_encode(array('CONNECTED' => 'Welcome',
+			'INFO' => 'Simple JSON API v7.x-1.3',
+			'ROUTES' => array(
+				'1' => '/api/login/{username}',
+				'2' => '/api/' . $loaded_username . '/node/{nid}',
+				'3' => '/api/' . $loaded_username . '/node/{nid}/delete',
+				'4' => '/api/' . $loaded_username . '/node/{nid}/update',
+				'5' => '/api/' . $loaded_username . '/node/0/create',
+				'6' => '/api/' . $loaded_username . '/node/list',
+				'7' => '/api/' . $loaded_username . '/user/{uid}',
+				'8' => '/api/' . $loaded_username . '/user/list',
+				),
+			));
+
+		$ts = time();
+
+		// see if the user has been assigned the "API User" role
+		if (simple_json_api_chk_role($loaded_uid)) {
+			// check to see if the user exists in our auth table
+			$usercheck = db_query('SELECT usersname FROM {simple_json_api} WHERE usersname = :usersname', array(':usersname' => $loaded_username))->fetchField();
+
+			// if the user already exists then set 'authorized' = 'yes'
+			if ($usercheck) {
+
+				$query = db_update('simple_json_api')
+					->condition('usersname', $loaded_username)
+					->fields(array('authorized' => 'yes', 'timestamp' => $ts))
+					->execute();
+
+				// update the auth table
+				simple_json_api_make_authtable();
+
+				// logging
+				$type = 'simple_json_api';
+				$message = 'Simple API User ' . $loaded_username . ' was authenticated from ' . $ip;
+				watchdog($type, $message, $variables = array(), $severity = WATCHDOG_NOTICE, $link = NULL);
+
+				// output login message
+				$json = $login_message;
+
+			} else {
+				// set the auth info in the database when we successfully authenticate against the drupal user database
+				$query = db_insert('simple_json_api')->fields(array(
+					'usersname' => $loaded_username,
+					'usersid' => $loaded_uid,
+					'timestamp' => $ts,
+					'ipaddress' => $ip,
+					'authorized' => 'yes'))->execute();
+
+				// update the auth table
+				simple_json_api_make_authtable();
+
+				// logging
+				$type = 'simple_json_api';
+				$message = 'Simple API User ' . $loaded_username . ' was authenticated from ' . $ip;
+				watchdog($type, $message, $variables = array(), $severity = WATCHDOG_NOTICE, $link = NULL);
+
+				// output login message
+				$json = $login_message;
+
+			} // END account exists check
+
+		} else {
+			$json = json_encode(array("ERROR" => "Could not login."));
+		}
+
+	} else {
+
+		$json = json_encode(array("ERROR" => "Could not login."));
+	}
+
+	return $json;
+}
+
+
+/**
+ * Displays default JSON response to non-defined api paths.
+ */
+function simple_json_api_view($pathinput) {
+
+	return json_encode(array("ERROR" => "Your request returned no data"));
+}
+
+
+/**
+ * Nodes by NID.
+ */
+function simple_json_api_node_view($uname, $nid, $loaded = array()) {
+	global $node;
+
+	// check $uname against auth flatfile db
+	if (simple_json_api_check_auth($uname)) {
+		if (!$loaded) {
+			$loaded_node = node_load($nid);
+			if ($loaded_node) {
+				$json = json_encode($loaded_node);
+			} else {
+				$json = json_encode(array("ERROR" => "Your request returned no data"));
+			}
+		} else {
+			$json = json_encode($loaded);
+		}
+	} else {
+		$json = json_encode(array("ERROR" => "NOT AUTHORIZED"));
+	}
+	return $json;
+}
+
+
+function simple_json_api_node_crud_load($pathop) {
+	$params = $_POST;
+	global $node;
+	global $user;
+
+	if (!empty($params)) {
+		switch ($pathop) {
+
+	    case "create":
+		  // CREATE A NODE --->
+
+		// submitted field values
+		foreach ($params as $key => $value) {
+			if ($key != 'nid') {
+				$node->$key = $value;
+			}
+		}
+		// user ID
+		$node->uid = $user->uid;
+		// default language
+		$node->language = LANGUAGE_NONE;
+		// hook_prepare() and hook_node_prepare().
+		node_object_prepare($node);
+		// prepare full node for saving
+		$node = node_submit($node); 
+		node_save($node);
+
+		if (isset($node->nid)) {
+			$var = $node;
+		} else {
+			$var = array("ERROR" => "node not created");
+		}
+	        break;
+
+	    case "update":
+	    // UPDATE A NODE --->
+
+		$node = node_load($params['nid'], NULL, TRUE);
+
+		if ($node) {
+		 	foreach ($params as $key => $value) {
+				if ($key != 'nid') {
+					$node->$key = $value;
+				}
+			}
+
+			try {
+				node_save($node);
+				$success = TRUE;
+			}
+			catch (Exception $e) {
+				$success = FALSE;
+			}
+
+			if ($success) {
+				$var = node_load($params['nid'], NULL, TRUE);
+			} else {
+				$var = array("ERROR" => "node not updated", "EXCEPTION" => $e->getMessage());
+			}
+		} else {
+			$var = array("ERROR" => "node not found");
+					}
+	        break;
+
+	    case "delete":
+	     // DELETE A NODE  --->
+
+		if (isset($params['nid'])) {
+			$node = node_load($params['nid'], NULL, TRUE);
+
+			if ($node) {
+				node_delete($params['nid']);
+				$var = array("SUCCESS" => "Node with ID " . $node->nid . " successfuly deleted");
+			} else {
+				$var = array("ERROR" => "Node with ID " . $params['nid'] . " not found");
+			}
+		} else {
+			$var = array("ERROR" => "Node ID is required");
+		}
+	        break;
+
+	    default:
+	        $var = array("ERROR" => "Your request returned no data");
+				}
+	} else {
+		$var = array("ERROR" => "Your request returned no data");
+	}
+	return $var;
+}
+
+
+/**
+ * Users by UID.
+ */
+function simple_json_api_user_view($uname, $uid) {
+
+	// check $uname against auth flatfile db
+	if (simple_json_api_check_auth($uname)) {
+		global $user;
+
+		// check $uname against auth flatfile db
+
+		$loaded_user = user_load($uid);
+		if ($loaded_user) {
+			// remove the password field for security
+			unset($loaded_user->pass);
+			$json = json_encode($loaded_user);
+
+		} else {
+			$json = json_encode(array("ERROR" => "Your request returned no data"));
+		}
+	} else {
+		$json = json_encode(array("ERROR" => "NOT AUTHORIZED"));
+	}
+
+	return $json;
+}
+
+
+/**
+ * a list of all nodes
+ */
+function simple_json_api_nodelist_view($uname) {
+
+	// check $uname against auth flatfile db
+	if (simple_json_api_check_auth($uname)) {
+		$nid_query = db_query('SELECT nid, type, title, status FROM {node}');
+		while ($row = $nid_query->fetchAssoc()) {
+			$nodes[] = $row;
+		}
+		$json = json_encode($nodes);
+	} else {
+		$json = json_encode(array("ERROR" => "NOT AUTHORIZED"));
+	}
+	return $json;
+}
+
+
+/**
+ * a list of all users
+ */
+function simple_json_api_userlist_view($uname) {
+
+	// check $uname against auth flatfile db
+	if (simple_json_api_check_auth($uname)) {
+
+		$user_query = db_query('SELECT uid, name FROM {users}');
+		while ($row = $user_query->fetchAssoc()) {
+			if ($row['uid'] != "0") {
+				$users[] = $row;
+			}
+		}
+		$json = json_encode($users);
+
+	} else {
+		$json = json_encode(array("ERROR" => "NOT AUTHORIZED"));
+	}
+	return $json;
+}
+
+
+/**
+ * Implements hook_permission().
+ *
+ * Access API data.
+ */
+function simple_json_api_permission() {
+
+	return array(
+		'access_simple_json_api' => array(
+			'title' => t('Access Simple JSON API'),
+			'description' => t('Allows timed access to Simple JSON API endpoints'),
+		),
+
+		'full_access_simple_json_api' => array(
+			'title' => t('Use Simple JSON API'),
+			'description' => t('Allows access to Simple JSON API endpoints with no timeout -- USE WITH CAUTION --'),
+
+		),
+	);
+}
+
+
+/**
+ * update our CSV authtable with the currently logged in users names
+ */
+function simple_json_api_make_authtable() {
+	$users_array = array();
+	$path = drupal_get_path('module', 'simple_json_api') . '/auth/authfile.csv';
+
+	// get the usernames from the database that are currently authorized
+	$usersquery = db_query('SELECT usersname FROM {simple_json_api} WHERE authorized = :authorized', array(':authorized' => 'yes'));
+
+	while ($row = $usersquery->fetchAssoc()) {
+		$users_array[] = $row['usersname'];
+	}
+
+	if (!empty($users_array)) {
+		// open our authfile
+		if (is_writable($path)) {
+			$fp = fopen($path, 'w');
+			// clear content to 0 bits
+			ftruncate($fp, 0);
+			// write a new authfile from the database
+			fputcsv($fp, $users_array);
+			// close the file
+			fclose($fp);
+		} else {
+			$type = 'simple_json_api';
+			$message = 'WARNING: Please enable read/write access for /sites/all/modules/simple_json_api/auth/authfile.csv';
+			watchdog($type, $message, $variables = array(), $severity = WATCHDOG_NOTICE, $link = NULL);
+		}
+
+	} else {
+
+		if (is_writable($path)) {
+			$fp = fopen($path, 'w');
+			// clear content to 0 bits
+			ftruncate($fp, 0);
+			fclose($fp);
+		} else {
+			$type = 'simple_json_api';
+			$message = 'WARNING: Please enable read/write access for /sites/all/modules/simple_json_api/auth/authfile.csv';
+			watchdog($type, $message, $variables = array(), $severity = WATCHDOG_NOTICE, $link = NULL);
+		}
+	}
+}
+
+
+/**
+ * checks to see if a user is in the CSV authtable
+ */
+function simple_json_api_check_auth($uname) {
+	// check $uname against auth flatfile db
+	$path = drupal_get_path('module', 'simple_json_api') . '/auth/authfile.csv';
+
+	$file = fopen($path, 'r');
+	while (($usr_array = fgetcsv($file)) !== FALSE) {
+		//$usr_array is an array of the csv elements
+		if (in_array($uname, $usr_array)) {
+			return $uname;
+		} else {
+			return FALSE;
+		}
+	}
+	fclose($file);
+}
+
+
+/**
+ * checks to see if a user has been logged in for more than one hour
+ */
+function simple_json_api_cron() {
+	// compare the times in the db with the current time
+	$timecheck_query = db_query('SELECT timestamp, usersname, authorized, usersid FROM {simple_json_api}');
+
+	while ($row = $timecheck_query->fetchAssoc()) {
+
+		if ($row['timestamp'] < time() - (60 * 60) && $row['authorized'] != 'no') {
+
+			if (!simple_json_api_chk_for_free($row['usersid'])) {
+
+				$uname = $row['usersname'];
+				$query = db_update('simple_json_api')
+					->fields(array('authorized' => 'no'))
+					->condition('usersname', $row['usersname'])
+					->execute();
+
+				$type = 'simple_json_api';
+				$message = 'Simple API User ' . $uname . ' session has ended';
+				watchdog($type, $message, $variables = array(), $severity = WATCHDOG_NOTICE, $link = NULL);
+
+			}
+
+		}
+	}
+	// update the auth table
+	simple_json_api_make_authtable();
+}
+
+
+/**
+ * returns TRUE if a users UID is assigned the "Access Simple JSON API" role
+ */
+function simple_json_api_chk_role($uid) {
+
+	if (!empty($uid)) {
+
+		$rid_check = db_query('SELECT rid FROM {role} WHERE name = :name', array(':name' => 'Access Simple JSON API'))->fetchField();
+
+
+		if ($rid_check) {
+
+			$has_role_check = db_query('SELECT rid FROM {users_roles} WHERE uid = :uid AND rid = :rid', array(':uid' => $uid, ':rid' => $rid_check))->fetchField();
+			if ($has_role_check) {
+
+				return TRUE;
+			} else {
+				return FALSE;
+			}
+		} else {
+			$type = 'simple_json_api';
+			$message = 'Simple JSON API: Someone with the user id of ' . $uid . ' tried to access an endpoint but did not have role based access';
+			watchdog($type, $message, $variables = array(), $severity = WATCHDOG_NOTICE, $link = NULL);
+		}
+	}
+}
+
+
+function simple_json_api_chk_for_free($uid) {
+
+	if (!empty($uid)) {
+
+		$rid_check = db_query('SELECT rid FROM {role} WHERE name = :name', array(':name' => 'Full Access Simple JSON API'))->fetchField();
+
+		if ($rid_check) {
+
+			$has_role_check = db_query('SELECT rid FROM {users_roles} WHERE uid = :uid AND rid = :rid', array(':uid' => $uid, ':rid' => $rid_check))->fetchField();
+			if ($has_role_check) {
+
+				return TRUE;
+			} else {
+				return FALSE;
+			}
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,4 @@
+super_login.admin.config:
+  route_name: super_login.settings
+  title: Super Login Settings
+  base_route: super_login.settings
