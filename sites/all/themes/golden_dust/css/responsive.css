@@ -1,0 +1,135 @@
+
+@media only screen and (max-width: 767px) {
+    .page-banner {
+        position: relative;
+        background: url(../images/pet-banner.png) no-repeat;
+        min-height: 100px;
+        background-position: center;
+        background-size: cover;
+        background-color: #fff;
+        height: auto;
+    }
+   /*.content_with_bg {
+    background: url(../images/bg-design.png) center no-repeat #1e1e1e;
+    background-size: cover;
+}*/
+    .wrapper-box .views-row {
+        margin-bottom: 30px;
+    }
+    .views-exposed-form .views-exposed-widget {
+        display: block;
+        width: 100%;
+    }
+    /*.owl-item:after{
+        display: none;
+    }*/
+    h2.block-title,
+    .region-footer-top h2.block-title {
+        font-size: 60px;
+    }
+    /*.page-banner:before {
+        content: '';
+        background: #ffffffbf;
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 1;
+        right: 0;
+        width: auto;
+        height: auto;
+    }*/
+    a.name.navbar-brand {
+        font-size: 16px;
+    }
+    .navigation-left {
+	    float: none;
+	}
+	nav.navigation-left .navbar-nav li a {
+	    line-height: 20px;
+	    padding: 10px 20px;
+	}
+	.toggle-control-open span.glyphicon-plus {
+	    top: 0px;
+	    right: 0px;
+	    padding: 8px 8px;
+	    line-height: 16px;
+	    height: 30px;
+	}
+	.navbar-toggle,
+	.navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
+	    margin-top: 20px;
+	    margin-right: 31px;
+	    background-color: #fcc32c;
+	    border: 1px solid #fcc32c !important;
+	    border-radius: 0;
+	}
+	.navbar-default .navbar-toggle .icon-bar {
+	    background-color: #fff;
+	}
+    .owl-pagination {
+        position: absolute;
+        right: 0;
+        bottom: 10px;
+        left: 0;
+    }
+}
+@media(min-width: 768px) and (max-width:991px){
+    .page-banner {
+        height: 500px;
+    }
+    .page-banner:before {
+        content: '';
+        background: url(../images/c.png) no-repeat center;
+        position: absolute;
+        left: 156px;
+        top: 10%;
+        width: 350px;
+        height: 350px;
+        z-index: 1;
+        background-size: contain;
+    }
+    nav.navigation-left .navbar-nav li {
+	    margin: 0px 0px;
+	}
+	nav.navigation-left .navbar-nav li a {
+	    color: #fff;
+	    font-size: 13px;
+        padding: 10px 6px;
+	}
+}
+@media (min-width: 768px){
+    a.name.navbar-brand{
+        margin-left: 85px !important;
+    }
+}
+@media only screen and (max-width: 480px) {
+     .nav-tabs,
+     .nav-tabs li{
+        width:100%;
+        background:transparent;
+    }
+     .nav-tabs li.active a{
+        border-radius:10px 10px 0 0;
+    }
+     .nav-tabs li:first-child a{
+        border-bottom-left-radius:0;
+    }
+     .nav-tabs li a{
+        margin-bottom:10px;
+        border:1px solid lightgray;
+    }
+     .nav-tabs li.active a:after{
+        border:none;
+    }
+    form.webform-client-form {
+        padding: 20px 10px;
+    }
+    .webform-client-form .input-group-btn button.btn {
+        padding: 10px 10px;
+    }
+     h2.block-title,
+     .region-footer-top h2.block-title {
+    font-size: 40px;}
+}
+

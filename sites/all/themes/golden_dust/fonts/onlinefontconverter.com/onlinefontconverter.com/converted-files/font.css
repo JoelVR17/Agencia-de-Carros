@@ -1,0 +1,16 @@
+@font-face {
+  font-family: 'AEZLEMONADE.TTF';
+  src: url('AEZLEMONADE.TTF.eot');
+  src: url('AEZLEMONADE.TTF.eot?#iefix') format('embedded-opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'AEZlemonade';
+  src: url('AEZlemonade.ttf') format('truetype'),
+       url('AEZlemonade.svg#AEZlemonade') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+

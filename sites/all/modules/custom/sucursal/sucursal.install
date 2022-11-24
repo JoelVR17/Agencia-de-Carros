@@ -45,7 +45,7 @@ function sucursal_install()
   }
 }
 
-// ? Se instalan las filas o campos de la sucursal
+// * Se instalan las filas o campos de la sucursal
 function _sucursal_installed_fields()
 {
 
@@ -81,12 +81,44 @@ function _sucursal_installed_fields()
       'type'        => 'text',
     ),
 
-    // ! Cantidad Empleados
-    'sucursal_cantEmpleados' => array(
-      'field_name'  => 'sucursal_cantEmpleados',
+    // ! Imagen
+    'sucursal_image' => array(
+      'field_name'  => 'sucursal_image',
       'cardinality' => 1,
-      'type'        => 'decimal',
+      'type'        => 'image',
     ),
+
+    // ! Archivo
+    'sucursal_documento' => array(
+      'field_name'  => 'sucursal_documento',
+      'cardinality' => 1,
+      'type'        => 'file',
+    ),
+
+    // ! Cantidad Empleados
+    'sucursal_cant_empleados' => array(
+      'type' => 'number_integer',
+      'field_name'  => 'sucursal_cant_empleados',
+      'cardinality' => 1,
+      'number_type' => 'integer',
+      'size' => 5,
+      'maxlength' => 12,
+    ),
+
+    // ! Sucursal Email
+    'sucursal_email' => array(
+      'field_name'  => 'sucursal_email',
+      'cardinality' => 1,
+      'type'        => 'text',
+    ),
+
+    // ! Fecha Apertura
+    'sucursal_fecha' => array(
+      'field_name' => 'sucursal_fecha',
+      'type'       => 'date',
+      'cardinality' => 1,
+    ),
+
   );
 }
 
@@ -156,17 +188,82 @@ function _sucursal_installed_instances()
       ),
     ),
 
-    // ! Cantidad Empleados
-    'sucursal_cantEmpleados' => array(
-      'field_name' => 'sucursal_cantEmpleados',
-      'label'       => $t('Cantidad Empleados'),
-      'widget'      => array(
-        'type'    => 'text_textfield',
+    // ! Imagen
+    'sucursal_image' => array(
+      'field_name'  => 'sucursal_image',
+      'label'       => $t('Imagen Sucursal:'),
+      'required'    => FALSE,
+      'widget' => array(
+        'type'    => 'image',
+        'weight'  => 2.10,
       ),
       'display' => array(
         'example_node_list' => array(
           'label' => 'hidden',
-          'type' => 'sucursal_cantEmpleadoss',
+          'type' => 'image_link_content__thumbnail',
+        ),
+      ),
+    ),
+
+    // ! Archivo
+    'sucursal_documento' => array(
+      'field_name'  => 'sucursal_documento',
+      'label'       => $t('Archivo de Permisos Sucursal'),
+      'required'    => FALSE,
+      'widget' => array(
+        'type'    => 'file',
+        'weight'  => 2.10,
+      ),
+      'display' => array(
+        'example_node_list' => array(
+          'label' => 'hidden',
+          'type' => 'image_link_content__thumbnail',
+        ),
+      ),
+    ),
+    
+    // ! Cantidad Empleados
+    'sucursal_cant_empleados' => array(
+      'field_name' => 'sucursal_cant_empleados',
+      'label'       => $t('Cantidad Empleados'),
+      'widget'      => array(
+        'type'    => 'number_integer',
+      ),
+      'display' => array(
+        'example_node_list' => array(
+          'label' => 'hidden',
+          'type' => 'sucursal_cant_empleadoss',
+        ),
+      ),
+    ),
+
+    // ! Email
+    'sucursal_email' => array(
+      'field_name'  => 'sucursal_email',
+      'label' => $t('Email de Sucursal'),
+      'type'        => 'text',
+      'widget'      => array(
+        'type'    => 'text_textfield',
+      ),
+      'display' => array(
+        'autor_list' => array(
+          'label' => 'hidden',
+          'type' => 'hidden',
+        ),
+      ),
+    ),
+
+    // ! Fecha
+    'sucursal_fecha' => array(
+      'field_name'  => 'sucursal_fecha',
+      'label' => $t('Fecha Apertura'),
+      'type'        => 'date',
+      'widget'      => array(
+      ),
+      'display' => array(
+        'autor_list' => array(
+          'label' => 'hidden',
+          'type' => 'hidden',
         ),
       ),
     ),

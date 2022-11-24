@@ -1,6 +1,660 @@
 <?php
 
+
+// * |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+    /*
+
+        - Cuando se elimina la imagen en la edición da un error
+
+    */
+
+// * |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+
+
+// ! VISTA DE TIPO DE CONTENIDO DE SUCRUSAL ----------------------------------------------------------
 // * Implements hook_views_api
 function sucursal_views_api($module = NULL, $api = NULL) {
     return array("api" => "3.0");
-  }
+}
+
+// ! CRUD DE TIPO CONTENIDO SUCURSAL ----------------------------------------------------------
+//  *   Hook_Permissions
+function sucursal_permission () {
+    return array (
+        'administer my module' => array (
+            'title' => t('CRUD Sucursal'),
+            'description' => t('Permisos para el Crud'),
+        ),
+    );
+}
+
+//  *   Hook_Menu
+function sucursal_menu () {
+    $items = array ();
+
+    // ? CRUD
+    $items['crud'] = array (
+        'title' => t('CRUD Sucursal'),
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array ('fcrud'),
+        'access arguments' =>  array('authenticated user'),
+        'type' => MENU_CALLBACK,
+    );
+
+    // ? LISTA
+    $items['lista'] = array (
+        'title' => t('Lista'),
+        'page callback' => array ('lista_resultados'),
+        'access arguments' =>  array('authenticated user'),
+        'type' => MENU_CALLBACK,
+    );
+
+    // ? BORRAR
+    $items['borrar/%'] = array (
+        'title' => t('Borrar Registro'),
+        'page callback' => array ('borrar_registros'),
+        'page arguments' => array (1),
+        'access arguments' =>  array('authenticated user'),
+    );
+
+    // ? EDITAR
+    $items['editar/%'] = array (
+        'title' => t('Editar Registro'),
+        'page callback' => array ('editar_registros'),
+        'page arguments' => array (1),
+        'access arguments' =>  array('authenticated user'),
+    );
+
+    // ? Return
+    return $items;
+}
+
+//  *   FCRUD
+function fcrud ($form, &$form_state) {
+
+    // ? Se crea array del formulario
+    $form = array ();
+
+     // ? Titulo
+     $form['titulo'] = array (
+        '#title' => t('Titulo'),
+        '#type' => 'textfield',
+        '#description' => t(''),
+        '#required' => TRUE,
+        '#default_value' => '',
+        '#size' => 50,
+        '#weight' => 0,
+    );
+
+    // ? Provincia
+    $form['provincia'] = array (
+        '#title' => t('Provincia'),
+        '#type' => 'textfield',
+        '#description' => t(''),
+        '#required' => TRUE,
+        '#default_value' => '',
+        '#size' => 50,
+        '#weight' => 1,
+    );
+
+    // ? Canton
+    $form['canton'] = array (
+      '#title' => t('Canton'),
+      '#type' => 'textfield',
+      '#description' => t(''),
+      '#required' => TRUE,
+      '#default_value' => '',
+      '#size' => 50,
+      '#weight' => 2,
+    );
+
+    // ? Distrito
+    $form['distrito'] = array (
+      '#title' => t('Distrito'),
+      '#type' => 'textfield',
+      '#description' => t(''),
+      '#required' => TRUE,
+      '#default_value' => '',
+      '#size' => 50,
+      '#weight' => 3,
+    );
+
+    // ? Direccion
+    $form['direccion'] = array (
+      '#title' => t('Direccion'),
+      '#type' => 'textfield',
+      '#description' => t(''),
+      '#required' => TRUE,
+      '#default_value' => '',
+      '#size' => 50,
+      '#weight' => 4,
+    );
+
+    // ? Cantidad Empleados
+    $form['cantidad_empleado'] = array (
+        '#attributes' => array(
+            'type'  =>  'number',
+            'pattern' => '^[0-9]+',
+            'size' => 50,
+            ),
+        '#title' => t('Cantidad de Empleados'),
+        '#type' => 'textfield',
+        '#required' => TRUE,
+        '#weight' => 5,
+    );
+
+    // ? Fecha
+    $form['fecha'] = array(
+        '#type' => 'date',
+        '#default_value' => array(
+          'year' => 2020,
+          'month' => 2,
+          'day' => 15,
+        ),
+        '#title' => t('Fecha de Apertura'),
+        '#required' => TRUE, 
+        '#weight' => 7,
+        '#size' => 50,
+    );
+
+    // ? Email
+    $form['correo']=array( 
+        '#title' => t('Correo Electrónico'),
+        '#type' => 'textfield',
+        '#description' => t(''), 
+        '#required' => TRUE, 
+        '#size' => 50,
+        '#weight' => 6,
+    );
+
+    // ? Imagen
+    $form['file'] = array(
+        '#title' => t('Imagen Sucursal'),
+        '#type' => 'managed_file',
+        '#default_value' => variable_get('file', ''),
+        '#weight' => 8,
+        '#required' => TRUE,
+        '#upload_location' => 'public://2022-11/',
+        '#upload_validators' => array(
+            'file_validate_extensions' => array('jpg jpeg gif png tif'),
+            'file_validate_size' => array(2 * 1024 * 1024),
+        ),
+        '#attributes' => array(
+            'class' => array('form-control'),
+            'aria-required'=> array('true'),
+            'aria-label' => array(t('Alternative Logo')),
+        ),
+    );
+
+    // ? Archivo TXT
+    $form['file_txt'] = array(
+        '#title' => t('Permisos Sucursal'),
+        '#type' => 'managed_file',
+        '#default_value' => variable_get('file_txt', ''),
+        '#weight' => 9,
+        '#upload_location' => 'public://2022-11/',
+        '#required' => TRUE,
+        '#upload_validators' => array(
+            'file_validate_extensions' => array('txt pdf docx'),
+            'file_validate_size' => array(2 * 1024 * 1024),
+        ),
+        '#attributes' => array(
+            'class' => array('form-control'),
+            'aria-required'=> array('true'),
+            'aria-label' => array(t('Alternative Logo')),
+        ),
+    );
+
+    // ? Submit
+    $form['submit'] = array (
+        '#type' => 'submit',
+        '#value' => 'Crear',
+        '#weight' => 100,
+    );
+
+    // ? Return
+    return $form;
+}
+
+//  *   Validar Insert ----------------------------------------------------------------------------------------------------
+function fcrud_validate($form,&$form_state){
+
+    // ? Se obtiene el correo del formualrio
+    $email = $form_state['values']['correo'];
+
+    // ? Se valida el email
+    if (!valid_email_address($email)) {
+        form_set_error('email', 'Lo siento, este correo electrónico ' . $email . ' no es válido. Favor digitar uno correcto.');
+    }
+}
+
+//  *   Crear Registros ----------------------------------------------------------------------------------------------------
+function fcrud_submit ($form, &$form_state) {
+
+    // ? User
+    global $user;
+
+    // ? Datos del Formulario
+    $titulo = $form_state['values']['titulo'];
+    $provincia = $form_state['values']['provincia'];
+    $canton = $form_state['values']['canton'];
+    $distrito = $form_state['values']['distrito'];
+    $direccion = $form_state['values']['direccion'];
+    $cantidad_empleado = $form_state['values']['cantidad_empleado'];
+    $correo = $form_state['values']['correo'];
+    $capturaFecha = $form_state['values']['fecha'];
+    $newDate = $capturaFecha['year'].'-'.$capturaFecha["month"].'-'.$capturaFecha["day"];
+
+    // ? Img
+    $fid = $form_state['values']['file'];
+    $file = file_load($form_state['values']['file']);
+    $file  -> status =  FILE_STATUS_PERMANENT;
+
+    // ? File txt
+    $fidFile = $form_state['values']['file_txt'];
+
+    // ? Creacion del Nodo con stdClass
+    $sucursal = new stdClass();
+    $sucursal  ->  uid = $user  ->  uid;
+    $sucursal  ->  type = 'sucursal';
+
+    // ? Se llena con los datos del formulario
+    $sucursal  ->  title = $titulo;
+    $sucursal  ->  sucursal_provincia[LANGUAGE_NONE][0]['value'] = $provincia;
+    $sucursal  ->  sucursal_canton[LANGUAGE_NONE][0]['value'] = $canton;
+    $sucursal  ->  sucursal_distrito[LANGUAGE_NONE][0]['value'] = $distrito;
+    $sucursal  ->  sucursal_direccion[LANGUAGE_NONE][0]['value'] = $direccion;
+    $sucursal  ->  sucursal_cant_empleados[LANGUAGE_NONE][0]['value'] = $cantidad_empleado;
+    $sucursal  ->  sucursal_image[LANGUAGE_NONE][0]['fid'] =  $fid;
+    $sucursal  ->  sucursal_fecha[LANGUAGE_NONE][0]['value'] = $newDate;
+    $sucursal  ->  sucursal_email[LANGUAGE_NONE][0]['value'] = $correo;
+
+    // ? Valida, edita y guarda el archivo
+    $validator = array('file_validate_extensions' => array("pdf txt"));
+    $file = file_save_upload('file_txt',$validator,'public://2022-11/');
+        if (isset($file) && $file != false) {
+            $file_permanent = file_load($file -> fid);
+            $file_permanent -> status = FILE_STATUS_PERMANENT;
+            file_save($file_permanent);
+        } else {
+            form_set_error('file_permiso', t('El archivo de permisos no se subió correctamente.'));
+        }
+    $sucursal  -> sucursal_documento['und'][0] = (array) $file_permanent;
+    $sucursal  -> sucursal_documento['und'][0]['display'] =  1;
+
+    // ? Se llenan datos varios
+    node_object_prepare($sucursal);
+    $sucursal  ->  language = LANGUAGE_NONE;
+    $sucursal  ->  comment = 2;
+    $sucursal  ->  status = 1;
+    $sucursal  ->  comment = 2;
+    $sucursal  ->  promote = 0;
+
+    // ? Se guarda el nodo
+    $sucursal = node_submit($sucursal);
+    node_save($sucursal);
+
+    // ? Se sube correctamente
+    drupal_set_message("¡Sucursal " . $sucursal -> title . " Creada Exitosamente!");
+    drupal_goto('lista');
+}
+
+// *   Lista Registros ----------------------------------------------------------------------------------------------------
+function lista_resultados () {
+
+    // ? Query para cargar los nodos de sucursal
+    $query = new EntityFieldQuery();
+    $result = $query
+        -> entityCondition('entity_type', 'node')
+        -> entityCondition('bundle', 'sucursal') 
+        -> execute();
+
+    // ? Header e inicio de la tabla
+    $salida = "";
+    $salida.=l('Nueva Sucursal','crud');
+    $header = array(t('ID'),t('Título'),t('Provincia'),t('Cantón'),t('Distrito'),t('Dirección'), t("Cantidad Empleados"), t('Fecha Apertura'),
+    t('Email'), t("Imagen"), t("Permisos"), t('Editar'),t('Borrar'));
+
+    // ? Se verifica que el query result no este vacio
+    if (!empty($result)) {
+
+        // ? Se cargan los nodos
+        $the_nodes = entity_load('node', array_keys($result['node']));
+
+        // ? Se extraen todas las propiedades de cada nodo
+        $aids = array();
+        foreach($the_nodes as $res) {
+
+            // ? Se comprueba que ningun campo venga vacio
+            if (!empty($res -> sucursal_provincia['und'][0]['value']) && !empty($res -> sucursal_canton['und'][0]['value']) && 
+            !empty($res -> sucursal_distrito['und'][0]['value']) && !empty($res -> sucursal_direccion['und'][0]['value']) &&
+            !empty($res -> sucursal_cant_empleados['und'][0]['value']) && !empty($res -> sucursal_image['und'][0]['fid']) &&
+            !empty($res -> sucursal_documento['und'][0]['fid']) && !empty($res -> sucursal_fecha['und'][0]['value']) &&
+            !empty($res -> sucursal_email['und'][0]['value'])) {
+
+                // ? Se valida que solo esten lo que estan publicados
+                if ($res -> status === "1") {
+
+                    // ? Se almacena la uri de la img
+                    $uriImg = $res -> sucursal_image['und'][0]['uri'];
+
+                    // ? Id del nodo
+                    $nid = $res -> vid;
+
+                    // ? Url del nodo
+                    $urlN = 'http://localhost:8080/drupal/node/' . $nid;
+
+                    // ? Se cargan los file
+                    $img = file_load($res -> sucursal_image['und'][0]['fid']);
+                    $file = file_load($res -> sucursal_documento['und'][0]['fid']);
+
+                    // ? Se obtienen las url de los files 
+                    $url = file_create_url($img -> uri);
+                    $urlFile = file_create_url($file -> uri);
+
+                    // ? Se llena cada fila por cada sucursal
+                    $aids[] = array (
+                        l($res -> vid,$urlN),
+                        check_plain($res -> title),
+                        check_plain($res -> sucursal_provincia['und'][0]['value']),
+                        check_plain($res -> sucursal_canton['und'][0]['value']),
+                        check_plain($res -> sucursal_distrito['und'][0]['value']),
+                        check_plain($res -> sucursal_direccion['und'][0]['value']),
+                        check_plain($res -> sucursal_cant_empleados['und'][0]['value']),
+                        check_plain($res -> sucursal_fecha['und'][0]['value']),
+                        check_plain($res -> sucursal_email['und'][0]['value']),
+                        '<img src="' . $url . '"; width="150"; height="125";typeof="foaf:Image" />',
+                        l($res -> sucursal_documento['und'][0]['filename'],$urlFile),
+                        l('✏️','editar/' . $res -> vid),
+                        l('🗑️','borrar/' . $res -> vid),
+                    );
+                }
+            } 
+        }
+
+        // ? Se termina de cargar y mostrar la tabla con todos los nodos
+        $salida .= theme('table',array('header' => $header, 'rows' => $aids));
+    
+        // ? Return
+        return ($salida);    
+    }
+
+    // ? Se muestra campos de la sucursal vacia
+    $aids = [];
+    $salida .= theme('table',array('header' => $header, 'rows' => $aids));
+
+    // ? Return
+    return ($salida);    
+}
+
+// *   Borrar Registros  ----------------------------------------------------------------------------------------------------
+function borrar_registros ($x) {
+    
+    // ? Se carga el nodo enviado por parametro
+    $node = node_load(arg(1));
+
+    // ? Se elimina el nodo
+    $node -> status = 0;
+    node_save($node);
+
+    // ? Se elimina correctamente
+    drupal_set_message('¡Sucursal ID-' . arg(1) . ' Eliminada Exitosamente!');
+    drupal_goto('lista');
+}
+
+// *   Editar Registros ----------------------------------------------------------------------------------------------------
+function editar_registros ($x) {
+
+    // ? Da la opcion de regresar
+    $salida = "";
+    $salida .= l('Regresar a la Lista','lista');
+
+    // ? Retorna la redireccion al formulario de edicion
+    return $salida .= drupal_render(drupal_get_form('editar_formulario'));
+}
+
+// *   Editar Formulario
+function editar_formulario ($form, &$form_state) {
+    
+    // ?  Se llena query con todas las sucursales
+    $query = new EntityFieldQuery();
+    $result = $query
+        -> entityCondition('entity_type', 'node')
+        -> entityCondition('bundle', 'sucursal') 
+        -> execute();
+
+    // ? Se llena el arrglo con el query de todas las sucursales extraidas
+    $the_nodes = entity_load('node', array_keys($result['node']));
+
+    // ? Se extraen todas las propiedades del nodo pasado por el argumento
+    $aids = array();
+    foreach($the_nodes as $res) {
+
+        // ? Se comprueba que ningun campo venga vacio
+        if (!empty($res -> sucursal_provincia['und'][0]['value']) && !empty($res -> sucursal_canton['und'][0]['value']) && 
+            !empty($res -> sucursal_distrito['und'][0]['value']) && !empty($res -> sucursal_direccion['und'][0]['value']) &&
+            !empty($res -> sucursal_cant_empleados['und'][0]['value']) && !empty($res -> sucursal_image['und'][0]['fid']) &&
+            !empty($res -> sucursal_documento['und'][0]['fid']) && !empty($res -> sucursal_fecha['und'][0]['value']) &&
+            !empty($res -> sucursal_email['und'][0]['value'])) {
+
+            // ?  Se extrae el año, mes y dia de la fecha
+            $fecha = $res -> sucursal_fecha['und'][0]['value'];
+            $dato = explode("-", $fecha); 
+
+            // ? Se valida que solo esten lo que estan publicados
+            if ($res -> status === "1") {
+        
+                // ? De todos los resultados del query se filtra unicamente el del argumento pasado => ID
+                if ($res -> vid == arg(1)) {
+
+                    // ? Se valida que los files no vengan vacios
+                    if (isset($res -> sucursal_image['und'][0]['fid']) && isset($res -> sucursal_documento['und'][0]['fid'])) {
+                
+                        // ? Se llena arrat con los datos del formulario
+                        $aids[] = array (
+                            check_plain($res -> title),
+                            check_plain($res -> sucursal_provincia['und'][0]['value']),
+                            check_plain($res -> sucursal_canton['und'][0]['value']),
+                            check_plain($res -> sucursal_distrito['und'][0]['value']),
+                            check_plain($res -> sucursal_direccion['und'][0]['value']),
+                            check_plain($res -> sucursal_cant_empleados['und'][0]['value']),
+                            check_plain($res -> sucursal_email['und'][0]['value']),
+                            $res -> sucursal_image['und'][0]['fid'],
+                            $res -> sucursal_documento['und'][0]['fid'],
+                        );       
+                    }
+                }
+            }
+        } 
+    }
+
+    // ? Se valida que el arreglo aids no este vacio
+    if (!empty($aids)) {
+
+        // ? Se llena form de actualizacion
+        $form = array ();
+
+        // ? Titulo
+        $form['titulo'] = array (
+        '#title' => t('Titulo de la Sucursal'),
+        '#type' => 'textfield',
+        '#description' => t(''),
+        '#required' => TRUE,
+        '#default_value' => $aids[0][0],
+        '#size' => 50,
+        '#weight' => 0,
+        '#disabled' => TRUE,
+        '#description' => t('Deshabilitado'),
+        );
+
+        // ? Provincia
+        $form['provincia'] = array (
+            '#title' => t('Provincia'),
+            '#type' => 'textfield',
+            '#description' => t(''),
+            '#required' => TRUE,
+            '#default_value' => $aids[0][1],
+            '#size' => 50,
+            '#weight' => 1,
+        );
+
+        // ? Canton
+        $form['canton'] = array (
+        '#title' => t('Canton'),
+        '#type' => 'textfield',
+        '#description' => t(''),
+        '#required' => TRUE,
+        '#default_value' => $aids[0][2],
+        '#size' => 50,
+        '#weight' => 2,
+        );
+
+        // ? Distrito
+        $form['distrito'] = array (
+        '#title' => t('Distrito'),
+        '#type' => 'textfield',
+        '#description' => t(''),
+        '#required' => TRUE,
+        '#default_value' => $aids[0][3],
+        '#size' => 50,
+        '#weight' => 3,
+        );
+
+        // ? Direccion
+        $form['direccion'] = array (
+        '#title' => t('Direccion'),
+        '#type' => 'textfield',
+        '#description' => t(''),
+        '#required' => TRUE,
+        '#default_value' => $aids[0][4],
+        '#size' => 50,
+        '#weight' => 4,
+        );
+
+        // ? Cantidad Empleados
+        $form['cantidad_empleado'] = array (
+            '#attributes' => array(
+                'type'  =>  'number',
+                'pattern' => '^[0-9]+',
+                'size' => 50,
+                ),
+            '#title' => t('Cantidad de Empleados'),
+            '#type' => 'textfield',
+            '#required' => TRUE,
+            '#default_value' => $aids[0][5],
+            '#weight' => 5,
+        );
+
+        // ? Fecha
+        $form['fecha'] = array(
+            '#type' => 'date',
+            '#default_value' => array(
+                'year' => $dato[0],
+                'month' => $dato[1],
+                'day' => $dato[2],
+            ),
+            '#title' => t('Fecha de Apertura'),
+            '#required' => TRUE, 
+            '#weight' => 7,
+            '#size' => 50,
+        );
+
+        // ? Email
+        $form['correo']=array( 
+            '#title' => t('Correo Electrónico'),
+            '#type' => 'textfield',
+            '#default_value' => $aids[0][6],
+            '#description' => t(''), 
+            '#required' => TRUE, 
+            '#size' => 50,
+            '#weight' => 6,
+        );
+
+        // ? Imagen
+        $form['file'] = array(              //!cuando se elimina da un error
+            '#title' => t('Imagen Sucursal'),
+            '#type' => 'managed_file',
+            // '#default_value' => $aids[0][7],
+            '#description' => t('Imagen de la sucursal'),
+            '#required' => TRUE,
+            '#upload_location' => 'public://2022-11/',
+            '#upload_validators' => array(
+                'file_validate_extensions' => array('jpg jpeg gif png tif'),
+                'file_validate_size' => array(2 * 1024 * 1024),
+            ),
+            '#attributes' => array(
+                'class' => array('form-control'),
+                'aria-required'=> array('true'),
+                'aria-label' => array(t('Alternative Logo')),
+            ),
+            '#weight' => 8,
+        );
+
+        // ? Archivo TXT
+        $form['file_txt'] = array(              //!cuando se elimina da un error
+            '#title' => t('Permisos Sucursal'),
+            '#type' => 'managed_file',
+            // '#default_value' => $aids[0][8],
+            '#upload_location' => 'public://2022-11/',
+            '#description' => t('Permisos de la Sucursal'),
+            '#required' => TRUE,
+            '#upload_validators' => array(
+                'file_validate_extensions' => array('txt pdf docx'),
+                'file_validate_size' => array(2 * 1024 * 1024),
+            ),
+            '#attributes' => array(
+                'class' => array('form-control'),
+                'aria-required'=> array('true'),
+                'aria-label' => array(t('Alternative Logo')),
+            ),
+            '#weight' => 9,
+        );
+
+        // ? Submit
+        $form['submit'] = array (
+            '#type' => 'submit',
+            '#value' => 'Actualizar',
+            '#weight' => 100,
+        );
+
+        // ? Return
+        return $form;
+    }
+}
+
+// *   Se actualiza la info
+function editar_formulario_submit ($form, &$form_state) {
+    
+    // ? Se carga el nodo enviado por parametro
+    $node = node_load(arg(1));
+
+    // ? Se extrae la fecha
+    $capturaFecha = $form_state['values']['fecha'];
+    $newDate = $capturaFecha['year'].'-'.$capturaFecha["month"].'-'.$capturaFecha["day"];
+
+    // ? Se cambian los atributos del nodo
+    $node -> sucursal_provincia[LANGUAGE_NONE][0]['value'] = $form_state['input']['provincia'];
+    $node -> sucursal_canton[LANGUAGE_NONE][0]['value'] = $form_state['input']['canton'];
+    $node -> sucursal_distrito[LANGUAGE_NONE][0]['value'] = $form_state['input']['distrito'];
+    $node -> sucursal_direccion[LANGUAGE_NONE][0]['value'] = $form_state['input']['direccion'];
+    $node -> sucursal_cant_empleados[LANGUAGE_NONE][0]['value'] = $form_state['input']['cantidad_empleado'];
+    $node -> sucursal_fecha[LANGUAGE_NONE][0]['value'] = $newDate;
+    $node -> sucursal_email[LANGUAGE_NONE][0]['value'] = $form_state['input']['correo'];
+
+    // ? Se obtiene el fid y se actualiza la img
+    $fid = $form_state['values']['file'];
+    $node  ->  sucursal_image[LANGUAGE_NONE][0]['fid'] =  $fid;
+
+    // ? Se obtiene el fid y se actualiza el file
+    $fidF = $form_state['values']['file_txt'];
+    $node  ->  sucursal_documento[LANGUAGE_NONE][0]['fid'] =  $fidF;
+
+    // ? Se actualiza el nodo
+    field_attach_update('node', $node);
+
+    // ? Se actualiza correctamente
+    drupal_set_message('¡Sucursal ID-' . arg(1) . ' Actualizada Exitosamente!');
+    drupal_goto('lista');
+}

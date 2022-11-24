@@ -18,7 +18,7 @@ function form_example_permission() {
 function form_example_menu() {
     $items = array();
     $items['form-example'] = array(
-        'title' => 'My example form',
+        'title' => 'Contacto con Toyota',
         'type' => MENU_NORMAL_ITEM,
         'page callback' => 'drupal_get_form',
         'page arguments' => array('form_example_form'),
@@ -40,32 +40,34 @@ function form_example_menu() {
 function form_example_form($form,&$form_state) {
     $form['mynumber'] = array(
         '#type' => 'textfield',
-        '#title' => t('My number'),
-        '#size' => 10,
+        '#title' => t('Cédula'),
+        '#size' => 70,
         '#maxlength' => 10,
+        '#minlength' => 9,
         '#required' => TRUE,
-        '#description' => t('Please enter a valid number'),
+        '#description' => t('Identificación Nacional Únicamente'),
     );
 
     $form['mytextfield'] = array(
         '#type' => 'textfield',
-        '#title' => t('My Textfield'),
-        '#size' => 50,
+        '#title' => t('Asunto'),
+        '#size' => 70,
         '#maxlength' => 128,
         '#required' => TRUE,
     );
 
     $form['mytext'] = array(
         '#type' => 'textarea',
-        '#title' => t('My Textarea'),
-        '#description' => t('Enter some text'),
+        '#title' => t('Descripción'),
+        '#description' => t('Razón del contacto con la empresa'),
         '#required' => TRUE,
         '#default_value' => '',
+        '#size' => 70,
     );
 
     $form['submit'] = array(
         '#type' => 'submit',
-        '#value' => t('Add the item'),
+        '#value' => t('Enviar'),
     );
 
     return $form;
@@ -73,9 +75,8 @@ function form_example_form($form,&$form_state) {
 
 //  Validation handler
 function form_example_form_validate($form, &$form_state) {
-    // print('<prev>' . print_r($form_state['values'],1). '</prev>');die();
     if (!is_numeric($form_state['values']['mynumber'])) {
-        form_set_error('mynumber', t('You must enter a valid number'));
+        form_set_error('mynumber', t('Ingrese una Cédula Válida'));
         return FALSE;
     }
 
@@ -89,12 +90,11 @@ function form_example_form_submit($form, &$form_state) {
         'mytextfield' => $form_state['values']['mytextfield'],
         'mytext' => $form_state['values']['mytext'],
     )) -> execute();
-    drupal_set_message(t('Your form entry has been added'));
+    drupal_set_message(t('Formulario Enviado Correctamente.'));
 }
 
 //  View the form submissions
 function form_example_submissions() {
-    //$results = db_query("SELECT * FROM {form_example}");
 
     $query = db_select('form_example', 'fe');
     $query 
@@ -102,9 +102,9 @@ function form_example_submissions() {
     -> range(0, 50)
     -> orderBy('fe.fe_id');
 
-    $results = $query->execute();
+    $results = $query  ->  execute();
 
-    $header = array(t('ID'), t('My Number'), t('My TextField'), t('My Text'));
+    $header = array(t('ID'), t('Cédula'), t('Asunto'), t('Descripción'));
 
     $rows = array();
 
