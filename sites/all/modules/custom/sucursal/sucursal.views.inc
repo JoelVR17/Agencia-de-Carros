@@ -36,44 +36,10 @@ function sucursal_views_default_views() {
     $handler -> display -> display_options['fields']['title']['field'] = 'title';
     $handler -> display -> display_options['fields']['title']['alter']['word_boundary'] = FALSE;
     $handler -> display -> display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-    /* Campo: Contenido: Canton */
-    $handler -> display -> display_options['fields']['sucursal_canton']['id'] = 'sucursal_canton';
-    $handler -> display -> display_options['fields']['sucursal_canton']['table'] = 'field_data_sucursal_canton';
-    $handler -> display -> display_options['fields']['sucursal_canton']['field'] = 'sucursal_canton';
-    /* Campo: Contenido: Direccion */
-    $handler -> display -> display_options['fields']['sucursal_direccion']['id'] = 'sucursal_direccion';
-    $handler -> display -> display_options['fields']['sucursal_direccion']['table'] = 'field_data_sucursal_direccion';
-    $handler -> display -> display_options['fields']['sucursal_direccion']['field'] = 'sucursal_direccion';
-    /* Campo: Contenido: Distrito */
-    $handler -> display -> display_options['fields']['sucursal_distrito']['id'] = 'sucursal_distrito';
-    $handler -> display -> display_options['fields']['sucursal_distrito']['table'] = 'field_data_sucursal_distrito';
-    $handler -> display -> display_options['fields']['sucursal_distrito']['field'] = 'sucursal_distrito';
-    /* Campo: Contenido: Provincia */
-    $handler -> display -> display_options['fields']['sucursal_provincia']['id'] = 'sucursal_provincia';
-    $handler -> display -> display_options['fields']['sucursal_provincia']['table'] = 'field_data_sucursal_provincia';
-    $handler -> display -> display_options['fields']['sucursal_provincia']['field'] = 'sucursal_provincia';
-    /* Campo: Contenido: Archivo de Permisos Sucursal */
+    /* Campo: Broken/missing handler */
     $handler -> display -> display_options['fields']['sucursal_documento']['id'] = 'sucursal_documento';
     $handler -> display -> display_options['fields']['sucursal_documento']['table'] = 'field_data_sucursal_documento';
     $handler -> display -> display_options['fields']['sucursal_documento']['field'] = 'sucursal_documento';
-    $handler -> display -> display_options['fields']['sucursal_documento']['click_sort_column'] = 'fid';
-    /* Campo: Contenido: Imagen Sucursal: */
-    $handler -> display -> display_options['fields']['sucursal_image']['id'] = 'sucursal_image';
-    $handler -> display -> display_options['fields']['sucursal_image']['table'] = 'field_data_sucursal_image';
-    $handler -> display -> display_options['fields']['sucursal_image']['field'] = 'sucursal_image';
-    $handler -> display -> display_options['fields']['sucursal_image']['click_sort_column'] = 'fid';
-    $handler -> display -> display_options['fields']['sucursal_image']['settings'] = array(
-    'image_style' => '',
-    'image_link' => '',
-    );
-    /* Campo: Contenido: Cantidad Empleados */
-    $handler -> display -> display_options['fields']['sucursal_cant_empleados']['id'] = 'sucursal_cant_empleados';
-    $handler -> display -> display_options['fields']['sucursal_cant_empleados']['table'] = 'field_data_sucursal_cant_empleados';
-    $handler -> display -> display_options['fields']['sucursal_cant_empleados']['field'] = 'sucursal_cant_empleados';
-    $handler -> display -> display_options['fields']['sucursal_cant_empleados']['settings'] = array(
-    'thousand_separator' => '',
-    'prefix_suffix' => 1,
-    );
     /* Sort criterion: Contenido: Post date */
     $handler -> display -> display_options['sorts']['created']['id'] = 'created';
     $handler -> display -> display_options['sorts']['created']['table'] = 'node';
@@ -129,17 +95,10 @@ function sucursal_views_default_views() {
     t('siguiente ›'),
     t('último »'),
     t('Título'),
-    t('Canton'),
-    t('Direccion'),
-    t('Distrito'),
-    t('Provincia'),
-    t('Archivo de Permisos Sucursal'),
-    t('Imagen Sucursal:'),
-    t('Cantidad Empleados'),
+    t('Broken handler field_data_sucursal_documento.sucursal_documento'),
     t('Page'),
     t('Data export'),
     );
-
     
     $export['lista_sucursal'] = $view;
 
