@@ -1291,6 +1291,7 @@ div.vertical-tabs {
 
 /* ! CUSTOM ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''*/
 
+/** ? Tablas */
 tbody {
 	color: white;
 }
@@ -1303,12 +1304,39 @@ tr {
 	background-color: #201E21 !important;
 }
 
+/** ? Quitar boton de subir al servidor */
 #edit-file-upload-button, #edit-file-txt-upload-button {
 	opacity: 0 !important;
 }
 
+/** ? Formulario */
 .form-text, .form-textarea {
 	border: 1px solid #C1C1C1;
 }
+
+/** ? Efecto a Header */
+#header-top .container #nav .menu li a:hover {
+	transform: scale(1.2);
+	transition: all .3s ease-in;
+	color: #DDAD58;
+}
+
+/** ? Perfil de usuario */
+.profile {
+	display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.user-picture .active img {
+	border-radius: 150px !important;
+	width: 150px;
+	height: 150px;
+	border: 1px solid white;
+}
+
+
 
 /* ! **********************************************************************/
